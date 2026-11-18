@@ -1,8 +1,8 @@
 {
-  "name": "csjmu-smart-help-desk-demo-backend",
+  "name": "csjmu-smart-help-desk-backend",
   "version": "1.0.0",
   "private": true,
-  "description": "Database-free demo backend for CSJMU Smart Student Help Desk",
+  "description": "Database-free demo backend",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
