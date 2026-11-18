@@ -1,12 +1,16 @@
 const express = require("express");
 const cors = require("cors");
 
+const {
+  addTicket,
+  getTickets,
+  findTicket,
+  addReport,
+  getReports
+} = require("./data/store");
+
 const app = express();
 const PORT = process.env.PORT || 10000;
-
-// Database-free temporary storage
-const tickets = [];
-const reports = [];
 
 app.use(cors());
 app.use(express.json());
@@ -25,18 +29,18 @@ app.get("/api/health", (req, res) => {
   res.json({
     ok: true,
     database: "Not Connected",
-    tickets: tickets.length,
-    reports: reports.length
+    tickets: getTickets().length,
+    reports: getReports().length
   });
 });
 
-// Submit student ticket
+// Create student ticket
 app.post("/api/tickets", (req, res) => {
   const { name, category, message } = req.body;
 
   if (!name || !category || !message) {
     return res.status(400).json({
-      error: "Please provide name, category and message"
+      error: "Please provide all required fields"
     });
   }
 
@@ -49,7 +53,7 @@ app.post("/api/tickets", (req, res) => {
     createdAt: new Date()
   };
 
-  tickets.push(ticket);
+  addTicket(ticket);
 
   res.status(201).json({
     success: true,
@@ -58,11 +62,14 @@ app.post("/api/tickets", (req, res) => {
   });
 });
 
+// Get all tickets
+app.get("/api/tickets", (req, res) => {
+  res.json(getTickets());
+});
+
 // Track ticket
 app.get("/api/tickets/:id", (req, res) => {
-  const ticket = tickets.find(
-    t => t.ticketId === req.params.id
-  );
+  const ticket = findTicket(req.params.id);
 
   if (!ticket) {
     return res.status(404).json({
@@ -73,7 +80,7 @@ app.get("/api/tickets/:id", (req, res) => {
   res.json(ticket);
 });
 
-// Maintenance report
+// Submit maintenance report
 app.post("/api/maintenance", (req, res) => {
   const { name, building, description } = req.body;
 
@@ -92,7 +99,7 @@ app.post("/api/maintenance", (req, res) => {
     createdAt: new Date()
   };
 
-  reports.push(report);
+  addReport(report);
 
   res.status(201).json({
     success: true,
@@ -101,7 +108,12 @@ app.post("/api/maintenance", (req, res) => {
   });
 });
 
+// Get all maintenance reports
+app.get("/api/maintenance", (req, res) => {
+  res.json(getReports());
+});
+
 // Start server
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Smart Help Desk running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
